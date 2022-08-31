@@ -6,7 +6,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/minio/minio-go/v7 v7.0.34
 	github.com/prometheus/client_golang v1.13.0
-	github.com/protocol-laboratory/zookeeper-codec-go v0.0.0-20220830121102-e126be0aef98
+	github.com/protocol-laboratory/zookeeper-codec-go v0.0.0-20220830155429-7c6be03dec88
 	github.com/sirupsen/logrus v1.9.0
 	go.uber.org/ratelimit v0.2.0
 )

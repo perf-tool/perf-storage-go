@@ -17,10 +17,47 @@
 
 package zookeeper
 
-import "github.com/protocol-laboratory/zookeeper-codec-go/zknet"
+import (
+	"fmt"
+	"github.com/protocol-laboratory/zookeeper-codec-go/codec"
+	"github.com/protocol-laboratory/zookeeper-codec-go/zknet"
+	"github.com/sirupsen/logrus"
+)
+
+const defaultTimeout = 30_000
 
 type zkClient struct {
-	netClient *zknet.ZookeeperNetClient
+	netClient     *zknet.ZookeeperNetClient
+	transactionId int
+}
+
+func (z *zkClient) connect() error {
+	resp, err := z.netClient.Connect(&codec.ConnectReq{
+		ProtocolVersion: 0,
+		LastZxidSeen:    0,
+		Timeout:         defaultTimeout,
+		SessionId:       0,
+		Password:        codec.PasswordEmpty,
+		ReadOnly:        false,
+	})
+	if err != nil {
+		return err
+	}
+	logrus.Info("session id is ", resp.SessionId)
+	return nil
+}
+
+func (z *zkClient) close() error {
+	closeResp, err := z.netClient.CloseSession(&codec.CloseReq{
+		TransactionId: z.transactionId,
+	})
+	if err != nil {
+		return err
+	}
+	if closeResp.Error != codec.EC_OK {
+		return fmt.Errorf("close session failed, code is %d", closeResp.Error)
+	}
+	return nil
 }
 
 func newZkClient(host string, port int) (*zkClient, error) {
@@ -31,7 +68,9 @@ func newZkClient(host string, port int) (*zkClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	zkClient := &zkClient{}
+	zkClient := &zkClient{
+		transactionId: 0,
+	}
 	zkClient.netClient = zkNetClient
 	return zkClient, nil
 }
