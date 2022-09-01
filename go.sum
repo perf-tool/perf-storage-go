@@ -205,8 +205,8 @@ github.com/prometheus/procfs v0.6.0/go.mod h1:cz+aTbrPOrUb4q7XlbU9ygM+/jj0fzG6c1
 github.com/prometheus/procfs v0.7.3/go.mod h1:cz+aTbrPOrUb4q7XlbU9ygM+/jj0fzG6c1xBZuNvfVA=
 github.com/prometheus/procfs v0.8.0 h1:ODq8ZFEaYeCaZOJlZZdJA2AbQR98dSHSM1KW/You5mo=
 github.com/prometheus/procfs v0.8.0/go.mod h1:z7EfXMXOkbkqb9IINtpCn86r/to3BnA0uaxHdg830/4=
-github.com/protocol-laboratory/zookeeper-codec-go v0.0.0-20220830155429-7c6be03dec88 h1:BMFLfHKyoxlcu6hMox9Ls4ylKzqcQBTQDudWolEYVyY=
-github.com/protocol-laboratory/zookeeper-codec-go v0.0.0-20220830155429-7c6be03dec88/go.mod h1:T8x20Rj5RZl2VcU3u1ZW0/ZJiSmHbEQY29V88eG1GWQ=
+github.com/protocol-laboratory/zookeeper-codec-go v0.0.0-20220831124259-48ae8c007f33 h1:6bq3Qr+R9UEO1q7d5AXFHcT0qr1H3jeCvzMSiQIETUY=
+github.com/protocol-laboratory/zookeeper-codec-go v0.0.0-20220831124259-48ae8c007f33/go.mod h1:T8x20Rj5RZl2VcU3u1ZW0/ZJiSmHbEQY29V88eG1GWQ=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rs/xid v1.4.0 h1:qd7wPTDkN6KQx2VmMBLrpHkiyQwgFXRnkOLacUiaSNY=
 github.com/rs/xid v1.4.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
