@@ -20,9 +20,9 @@ package conf
 import "perf-storage-go/util"
 
 var (
-	ZkHost         = util.GetEnvStr("ZK_HOST", "localhost")
-	ZkPort         = util.GetEnvInt("ZK_PORT", 2181)
-	ZkPath         = util.GetEnvStr("ZK_PATH", "/perf")
-	ZkPermissions  = util.GetEnvInt("ZK_PERMISSIONS", 31)
-	ZkNodeTotalNum = util.GetEnvInt("ZK_NODE_TOTAL_NUM", 10)
+	ZkHost       = util.GetEnvStr("ZK_HOST", "localhost")
+	ZkPort       = util.GetEnvInt("ZK_PORT", 2181)
+	ZkPath       = util.GetEnvStr("ZK_PATH", "/perf")
+	ZkPermission = util.GetEnvInt("ZK_PERMISSION", 31)
+	ZkDataSize   = util.GetEnvInt("ZK_DATA_SIZE", 10240)
 )

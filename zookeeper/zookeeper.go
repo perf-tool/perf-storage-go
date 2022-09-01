@@ -18,6 +18,8 @@
 package zookeeper
 
 import (
+	"errors"
+	"fmt"
 	"github.com/protocol-laboratory/zookeeper-codec-go/codec"
 	"github.com/sirupsen/logrus"
 	"perf-storage-go/conf"
@@ -36,60 +38,49 @@ func Start() error {
 		return err
 	}
 
-	exists, err := client.netClient.Exists(&codec.ExistsReq{
-		TransactionId: client.transactionId,
-		OpCode:        codec.OP_EXISTS,
-		Path:          conf.ZkPath,
-		Watch:         true,
-	})
-	client.transactionId += 1
+	exists, err := client.exists(conf.ZkPath)
 
 	if err != nil {
 		return err
 	}
 
 	if exists.Error != codec.EC_OK {
-		err := create(client, conf.ZkPermissions, conf.ZkPath, "")
+		resp, err := client.create(conf.ZkPath, []byte(""), conf.ZkPermission)
 		if err != nil {
+			logrus.Errorf("create zk path %s error %v", conf.ZkPath, err)
 			return err
+		}
+		if resp.Error != codec.EC_OK {
+			str := fmt.Sprintf("create zk path %s error %d", conf.ZkPath, resp.Error)
+			logrus.Errorf(str)
+			return errors.New(str)
 		}
 	}
 
-	children, err := client.netClient.GetChildren(&codec.GetChildrenReq{
-		TransactionId: client.transactionId,
-		OpCode:        codec.OP_GET_DATA,
-		Path:          conf.ZkPath,
-		Watch:         true,
-	})
-	client.transactionId += 1
+	childrenResp, err := client.getChildren(conf.ZkPath)
 	if err != nil {
+		logrus.Errorf("get children %s error %d", conf.ZkPath, err)
 		return err
 	}
-	folders := children.Children
-	ids := conf.ZkNodeTotalNum - len(folders)
+	if childrenResp.Error != codec.EC_OK {
+		str := fmt.Sprintf("get children %s error %d", conf.ZkPath, childrenResp.Error)
+		logrus.Errorf(str)
+		return errors.New(str)
+	}
+	folders := childrenResp.Children
+	ids := conf.DataSetSize - len(folders)
 	if ids > 0 {
 		idList := util.GetIdList(ids)
 		for _, val := range idList {
-			_ = create(client, conf.ZkPermissions, conf.ZkPath+"/"+val, val)
+			path := conf.ZkPath + "/" + val
+			resp, err := client.create(path, util.RandBytes(conf.ZkDataSize), conf.ZkPermission)
+			if err != nil {
+				logrus.Errorf("create zk path %s error %v", path, err)
+			}
+			if resp.Error != codec.EC_OK {
+				logrus.Errorf("create zk path %s error %d", path, resp.Error)
+			}
 		}
 	}
 	return nil
-}
-
-func create(zkClient *zkClient, permissions int, path string, val string) error {
-	_, err := zkClient.netClient.Create(&codec.CreateReq{
-		TransactionId: zkClient.transactionId,
-		OpCode:        codec.OP_CREATE,
-		Path:          path,
-		Data:          []byte(val),
-		Permissions:   []int{permissions},
-		Scheme:        "world",
-		Credentials:   "anyone",
-		Flags:         0,
-	})
-	zkClient.transactionId += 1
-	if err != nil {
-		logrus.Errorf("create data fail. id: %s %s", val, err)
-	}
-	return err
 }
