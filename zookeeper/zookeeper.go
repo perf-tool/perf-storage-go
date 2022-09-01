@@ -17,6 +17,70 @@
 
 package zookeeper
 
+import (
+	"errors"
+	"fmt"
+	"github.com/protocol-laboratory/zookeeper-codec-go/codec"
+	"github.com/sirupsen/logrus"
+	"perf-storage-go/conf"
+	"perf-storage-go/util"
+)
+
 func Start() error {
+	logrus.Info("perf storage zk start")
+	client, err := newZkClient(conf.ZkHost, conf.ZkPort)
+	if err != nil {
+		return err
+	}
+
+	if client.connect() != nil {
+		logrus.Errorf("connect zk fail. %s", conf.ZkHost)
+		return err
+	}
+
+	exists, err := client.exists(conf.ZkPath)
+
+	if err != nil {
+		return err
+	}
+
+	if exists.Error != codec.EC_OK {
+		resp, err := client.create(conf.ZkPath, []byte(""), conf.ZkPermission)
+		if err != nil {
+			logrus.Errorf("create zk path %s error %v", conf.ZkPath, err)
+			return err
+		}
+		if resp.Error != codec.EC_OK {
+			str := fmt.Sprintf("create zk path %s error %d", conf.ZkPath, resp.Error)
+			logrus.Errorf(str)
+			return errors.New(str)
+		}
+	}
+
+	childrenResp, err := client.getChildren(conf.ZkPath)
+	if err != nil {
+		logrus.Errorf("get children %s error %d", conf.ZkPath, err)
+		return err
+	}
+	if childrenResp.Error != codec.EC_OK {
+		str := fmt.Sprintf("get children %s error %d", conf.ZkPath, childrenResp.Error)
+		logrus.Errorf(str)
+		return errors.New(str)
+	}
+	folders := childrenResp.Children
+	ids := conf.DataSetSize - len(folders)
+	if ids > 0 {
+		idList := util.GetIdList(ids)
+		for _, val := range idList {
+			path := conf.ZkPath + "/" + val
+			resp, err := client.create(path, util.RandBytes(conf.ZkDataSize), conf.ZkPermission)
+			if err != nil {
+				logrus.Errorf("create zk path %s error %v", path, err)
+			}
+			if resp.Error != codec.EC_OK {
+				logrus.Errorf("create zk path %s error %d", path, resp.Error)
+			}
+		}
+	}
 	return nil
 }

@@ -47,6 +47,43 @@ func (z *zkClient) connect() error {
 	return nil
 }
 
+func (z *zkClient) create(path string, val []byte, permission int) (*codec.CreateResp, error) {
+	resp, err := z.netClient.Create(&codec.CreateReq{
+		TransactionId: z.transactionId,
+		OpCode:        codec.OP_CREATE,
+		Path:          path,
+		Data:          []byte(val),
+		Permissions:   []int{permission},
+		Scheme:        "world",
+		Credentials:   "anyone",
+		Flags:         0,
+	})
+	z.transactionId += 1
+	return resp, err
+}
+
+func (z *zkClient) exists(path string) (*codec.ExistsResp, error) {
+	resp, err := z.netClient.Exists(&codec.ExistsReq{
+		TransactionId: z.transactionId,
+		OpCode:        codec.OP_EXISTS,
+		Path:          path,
+		Watch:         true,
+	})
+	z.transactionId += 1
+	return resp, err
+}
+
+func (z *zkClient) getChildren(path string) (*codec.GetChildrenResp, error) {
+	resp, err := z.netClient.GetChildren(&codec.GetChildrenReq{
+		TransactionId: z.transactionId,
+		OpCode:        codec.OP_GET_DATA,
+		Path:          path,
+		Watch:         true,
+	})
+	z.transactionId += 1
+	return resp, err
+}
+
 func (z *zkClient) close() error {
 	closeResp, err := z.netClient.CloseSession(&codec.CloseReq{
 		TransactionId: z.transactionId,
