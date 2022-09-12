@@ -23,7 +23,9 @@ import (
 	"github.com/protocol-laboratory/zookeeper-codec-go/codec"
 	"github.com/sirupsen/logrus"
 	"perf-storage-go/conf"
+	"perf-storage-go/metrics"
 	"perf-storage-go/util"
+	"time"
 )
 
 func Start() error {
@@ -72,12 +74,16 @@ func Start() error {
 	if ids > 0 {
 		idList := util.GetIdList(ids)
 		for _, val := range idList {
+			start := time.Now()
 			path := conf.ZkPath + "/" + val
 			resp, err := client.create(path, util.RandBytes(conf.ZkDataSize), conf.ZkPermission)
 			if err != nil {
+				metrics.SuccessCount.WithLabelValues(conf.StorageTypeZooKeeper, conf.OperationTypeInsert).Inc()
+				metrics.SuccessLatency.WithLabelValues(conf.StorageTypeZooKeeper, conf.OperationTypeInsert).Observe(float64(time.Since(start)))
 				logrus.Errorf("create zk path %s error %v", path, err)
 			}
 			if resp.Error != codec.EC_OK {
+				metrics.FailCount.WithLabelValues(conf.StorageTypeZooKeeper, conf.OperationTypeInsert).Inc()
 				logrus.Errorf("create zk path %s error %d", path, resp.Error)
 			}
 		}
