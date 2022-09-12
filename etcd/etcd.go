@@ -35,21 +35,21 @@ func Start() error {
 		Endpoints:   endpoints,
 		Username:    conf.Username,
 		Password:    conf.Password,
-		DialTimeout: time.Duration(conf.DialTimeout),
+		DialTimeout: time.Duration(conf.DialTimeoutSeconds) * time.Second,
 	})
 	if err != nil {
 		return err
 	}
-	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Duration(conf.DialTimeout))
+	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Duration(conf.DialTimeoutSeconds))
 
-	resp, err := client.Get(ctx, conf.ETCDPath)
+	resp, err := client.Get(ctx, conf.EtcdPath)
 	if err != nil {
 		return err
 	}
-	keyList := util.GetIdList(conf.ETCDDataSize - int(resp.Count))
+	keyList := util.GetIdList(conf.EtcdDataSize - int(resp.Count))
 	for _, key := range keyList {
 		start := time.Now()
-		_, err := client.Put(ctx, fmt.Sprintf("%s/%s", conf.ETCDPath, key), util.RandStr(conf.ETCDDataLength))
+		_, err := client.Put(ctx, fmt.Sprintf("%s/%s", conf.EtcdPath, key), util.RandStr(conf.EtcdDataLength))
 		if err != nil {
 			metrics.FailCount.WithLabelValues(conf.StorageTypeEtcd, conf.OperationTypeInsert).Inc()
 			logrus.Error("put fail. ", err)

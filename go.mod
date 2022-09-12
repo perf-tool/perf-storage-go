@@ -8,7 +8,7 @@ require (
 	github.com/prometheus/client_golang v1.13.0
 	github.com/protocol-laboratory/zookeeper-codec-go v0.0.0-20220831124259-48ae8c007f33
 	github.com/sirupsen/logrus v1.9.0
-	go.etcd.io/etcd/client/v3 v3.5.0-alpha.0
+	go.etcd.io/etcd/client/v3 v3.5.0
 	go.uber.org/ratelimit v0.2.0
 )
 
