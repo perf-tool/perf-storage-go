@@ -22,11 +22,11 @@ import (
 )
 
 var (
-	Endpoints      = util.GetEnvStr("ETCD_ENDPOINTS", "localhost:2379")
-	Username       = util.GetEnvStr("ETCD_USERNAME", "")
-	Password       = util.GetEnvStr("ETCD_PASSWORD", "")
-	DialTimeout    = util.GetEnvInt("ETCD_DIAL_TIMEOUT_SECOND", 5)
-	ETCDDataSize   = util.GetEnvInt("ETCD_DATA_SIZE", 10240)
-	ETCDDataLength = util.GetEnvInt("ETCD_DATA_LENGTH", 512)
-	ETCDPath       = util.GetEnvStr("ETCD_PATH", "/perf")
+	Endpoints          = util.GetEnvStr("ETCD_ENDPOINTS", "localhost:2379")
+	Username           = util.GetEnvStr("ETCD_USERNAME", "")
+	Password           = util.GetEnvStr("ETCD_PASSWORD", "")
+	DialTimeoutSeconds = util.GetEnvInt("ETCD_DIAL_TIMEOUT_SECONDS", 5)
+	EtcdDataSize       = util.GetEnvInt("ETCD_DATA_SIZE", 10240)
+	EtcdDataLength     = util.GetEnvInt("ETCD_DATA_LENGTH", 512)
+	EtcdPath           = util.GetEnvStr("ETCD_PATH", "/perf")
 )
