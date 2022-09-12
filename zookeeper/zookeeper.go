@@ -88,5 +88,6 @@ func Start() error {
 			}
 		}
 	}
+	defer client.close()
 	return nil
 }
