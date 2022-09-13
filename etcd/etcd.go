@@ -40,7 +40,7 @@ func Start() error {
 	if err != nil {
 		return err
 	}
-	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Duration(conf.DialTimeoutSeconds))
+	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Duration(conf.DialTimeoutSeconds)*time.Second)
 
 	resp, err := client.Get(ctx, conf.EtcdPath)
 	if err != nil {
