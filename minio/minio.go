@@ -65,19 +65,25 @@ func Start() error {
 	needDataSize := conf.DataSetSize - len(nowKeys)
 	if needDataSize > 0 {
 		keys := util.GetIdList(needDataSize)
+
 		var gpool = newGPool(conf.PresetRoutineNum)
-		for _, key := range keys {
+		for idx, key := range keys {
+			var newKey = key
 			gpool.newTask(func() {
 				startTime := time.Now()
-				_, err := client.PutObject(context.TODO(), conf.MinioBucketName, key, bytes.NewReader(util.RandBytes(conf.MinioDataSize)), int64(conf.DataSetSize), minio.PutObjectOptions{})
+				_, err := client.PutObject(context.TODO(), conf.MinioBucketName, newKey, bytes.NewReader(util.RandBytes(conf.MinioDataSize)), int64(conf.DataSetSize), minio.PutObjectOptions{})
 				if err != nil {
 					metrics.FailCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeInsert).Inc()
-					logrus.Errorf("put object key %s error %v", key, err)
+					logrus.Errorf("put object key %s error %v", newKey, err)
 				} else {
 					metrics.SuccessCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeInsert).Inc()
 					metrics.SuccessLatency.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeInsert).Observe(float64(time.Since(startTime).Milliseconds()))
 				}
 			})
+			// sleep
+			if idx != 0 && idx%conf.PresetRoutineNum == 0 && conf.UpdateRateInterval != 0 {
+				time.Sleep(time.Second * time.Duration(conf.UpdateRateInterval))
+			}
 		}
 		gpool.wait()
 		nowKeys = append(nowKeys, keys...)
@@ -125,6 +131,10 @@ func Start() error {
 						metrics.SuccessCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeUpdate).Inc()
 						metrics.SuccessLatency.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeUpdate).Observe(float64(time.Since(startTime)))
 					}
+				}
+
+				if conf.ReadRateInterval != 0 {
+					time.Sleep(time.Second * time.Duration(conf.ReadRateInterval))
 				}
 			}
 		}()

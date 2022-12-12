@@ -23,13 +23,15 @@ import (
 )
 
 var (
-	StorageType      = os.Getenv("STORAGE_TYPE")
-	PresetRoutineNum = util.GetEnvInt("PRESET_ROUTINE_NUM", 100)
-	RoutineNum       = util.GetEnvInt("ROUTINE_NUM", 100)
-	RoutineRateLimit = util.GetEnvInt("ROUTINE_RATE_LIMIT", 100)
-	DataSetSize      = util.GetEnvInt("DATA_SET_SIZE", 100_000)
-	ReadOpPercent    = util.GetEnvFloat64("READ_OP_PERCENT", 0.25)
-	UpdateOpPercent  = util.GetEnvFloat64("UPDATE_OP_PERCENT", 0.75)
+	StorageType        = os.Getenv("STORAGE_TYPE")
+	PresetRoutineNum   = util.GetEnvInt("PRESET_ROUTINE_NUM", 100)
+	RoutineNum         = util.GetEnvInt("ROUTINE_NUM", 100)
+	RoutineRateLimit   = util.GetEnvInt("ROUTINE_RATE_LIMIT", 100)
+	UpdateRateInterval = util.GetEnvInt("UPDATE_RATE_INTERVAL_SECONDS", 0)
+	ReadRateInterval   = util.GetEnvInt("READ_RATE_INTERVAL_SECONDS", 0)
+	DataSetSize        = util.GetEnvInt("DATA_SET_SIZE", 100_000)
+	ReadOpPercent      = util.GetEnvFloat64("READ_OP_PERCENT", 0.25)
+	UpdateOpPercent    = util.GetEnvFloat64("UPDATE_OP_PERCENT", 0.75)
 )
 
 const (

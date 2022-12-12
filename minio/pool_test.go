@@ -33,3 +33,32 @@ func Test_gPool_newTask(t *testing.T) {
 	}
 	pool.wait()
 }
+
+func Test_gPool_newTask_noClosure(t *testing.T) {
+	pool := newGPool(3)
+	var noClosure = func(name string) {
+		fmt.Println(name)
+	}
+	for i := 0; i < 5; i++ {
+		pool.newTask(func() {
+			// i take a mistake, because value copy
+			noClosure(fmt.Sprintf("%d doing...", i))
+		})
+	}
+	pool.wait()
+}
+
+func Test_gPool_newTask_noClosure_new(t *testing.T) {
+	pool := newGPool(3)
+	var noClosure = func(name string) {
+		fmt.Println(name)
+	}
+	for i := 0; i < 5; i++ {
+		var newName = fmt.Sprintf("%d doing...", i)
+		pool.newTask(func() {
+			// good job
+			noClosure(newName)
+		})
+	}
+	pool.wait()
+}
