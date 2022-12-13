@@ -30,6 +30,8 @@ import (
 	"perf-storage-go/mysql"
 	"perf-storage-go/redis"
 	"perf-storage-go/zookeeper"
+
+	_ "net/http/pprof"
 )
 
 func main() {
