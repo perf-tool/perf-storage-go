@@ -24,6 +24,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"io"
 	"perf-storage-go/conf"
+	"perf-storage-go/util"
 )
 
 type Cli struct {
@@ -43,8 +44,14 @@ func (c Cli) ListObjects(ctx context.Context, name string, opts minio.ListObject
 	return c.client.ListObjects(ctx, name, opts)
 }
 
-func (c Cli) PutObject(ctx context.Context, name string, key string, reader *bytes.Reader, objectSize int64, opts minio.PutObjectOptions) (minio.UploadInfo, error) {
-	return c.client.PutObject(ctx, name, key, reader, objectSize, opts)
+func (c Cli) PutObject(ctx context.Context, name string, key string, dataSize int64, objectSize int64, opts minio.PutObjectOptions) (minio.UploadInfo, error) {
+	var data []byte
+	if conf.RandomDataEnable {
+		data = util.RandBytes(dataSize)
+	} else {
+		data = FixedBytesCache
+	}
+	return c.client.PutObject(ctx, name, key, bytes.NewReader(data), objectSize, opts)
 }
 
 func (c Cli) GetObject(ctx context.Context, name string, key string, opts minio.GetObjectOptions) error {

@@ -18,7 +18,6 @@
 package minio
 
 import (
-	"bytes"
 	"context"
 	"github.com/minio/minio-go/v7"
 	"github.com/sirupsen/logrus"
@@ -29,6 +28,8 @@ import (
 	"perf-storage-go/util"
 	"time"
 )
+
+var FixedBytesCache = util.RandBytes(conf.DataSize)
 
 func Start() error {
 	logrus.Info("perf storage minio start")
@@ -60,16 +61,15 @@ func Start() error {
 	needDataSetSize := conf.DataSetSize - len(nowKeys)
 	if needDataSetSize > 0 {
 		keys := util.GetIdList(needDataSetSize)
-
 		var gpool = newGPool(conf.PresetRoutineNum)
 		for idx, key := range keys {
 			var newKey = key
 			gpool.newTask(func() {
 				startTime := time.Now()
-				_, err := client.PutObject(context.TODO(), conf.MinioBucketName, newKey, bytes.NewReader(util.RandBytes(conf.DataSize)), int64(conf.DataSetSize), minio.PutObjectOptions{})
+				_, err := client.PutObject(context.TODO(), conf.MinioBucketName, newKey, conf.DataSize, int64(conf.DataSetSize), minio.PutObjectOptions{})
 				if err != nil {
 					metrics.FailCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeInsert).Inc()
-					logrus.Errorf("put object key %s error %v", newKey, err)
+					logrus.Errorf("put object key:%s , error: %v", newKey, err)
 				} else {
 					metrics.SuccessCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeInsert).Inc()
 					metrics.SuccessLatency.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeInsert).Observe(float64(time.Since(startTime).Milliseconds()))
@@ -89,7 +89,7 @@ func Start() error {
 			limiter := ratelimit.New(conf.RoutineRateLimit)
 			client, err := newCli()
 			if err != nil {
-				logrus.Error("create minio client error", err)
+				logrus.Errorf("create minio client error: %v", err)
 			}
 			for {
 				limiter.Take()
@@ -109,10 +109,10 @@ func Start() error {
 				if randomF < conf.UpdateOpPercent {
 					key := nowKeys[rand.Intn(len(nowKeys))]
 					startTime := time.Now()
-					_, err := client.PutObject(context.TODO(), conf.MinioBucketName, key, bytes.NewReader(util.RandBytes(conf.DataSize)), int64(conf.DataSetSize), minio.PutObjectOptions{})
+					_, err := client.PutObject(context.TODO(), conf.MinioBucketName, key, conf.DataSize, int64(conf.DataSetSize), minio.PutObjectOptions{})
 					if err != nil {
 						metrics.FailCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeUpdate).Inc()
-						logrus.Errorf("put object key %s error %v", key, err)
+						logrus.Errorf("put object key: %s , error: %v", key, err)
 					} else {
 						metrics.SuccessCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeUpdate).Inc()
 						metrics.SuccessLatency.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeUpdate).Observe(float64(time.Since(startTime)))
