@@ -20,16 +20,23 @@ package minio
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/sirupsen/logrus"
 	"io"
+	"os"
 	"perf-storage-go/conf"
 	"perf-storage-go/util"
 )
 
+const FixedFileDir = "/opt/perf/testdata/"
+
 type Cli struct {
-	client   *minio.Client
-	dataSize int64
+	client     *minio.Client
+	dataSize   int64
+	bufferType string
+	filename   string
 }
 
 func (c Cli) BucketExists(ctx context.Context, name string) (bool, error) {
@@ -44,21 +51,37 @@ func (c Cli) ListObjects(ctx context.Context, name string, opts minio.ListObject
 	return c.client.ListObjects(ctx, name, opts)
 }
 
-func (c Cli) PutObject(ctx context.Context, name string, key string, dataSize int64, objectSize int64, opts minio.PutObjectOptions) (minio.UploadInfo, error) {
-	var data []byte
-	if conf.RandomDataEnable {
-		data = util.RandBytes(dataSize)
-	} else {
-		data = FixedBytesCache
+func (c Cli) PutObject(ctx context.Context, name string, key string, dataSize int64, opts minio.PutObjectOptions) (minio.UploadInfo, error) {
+	switch c.bufferType {
+	case conf.ExchangeTypeFile:
+		return c.client.FPutObject(ctx, name, key, c.filename, opts)
+	default:
+		var data []byte
+		if conf.RandomDataEnable {
+			data = util.RandBytes(dataSize)
+		} else {
+			data = FixedBytesCache
+		}
+		return c.client.PutObject(ctx, name, key, bytes.NewReader(data), dataSize, opts)
 	}
-	return c.client.PutObject(ctx, name, key, bytes.NewReader(data), objectSize, opts)
 }
 
 func (c Cli) GetObject(ctx context.Context, name string, key string, opts minio.GetObjectOptions) error {
-	object, err := c.client.GetObject(ctx, name, key, opts)
-	if err != nil {
-		_, err = io.ReadAll(object)
-		return err
+	var err error
+	var object *minio.Object
+	switch conf.ExchangeType {
+	case conf.ExchangeTypeFile:
+		err = c.client.FGetObject(ctx, name, key, c.filename, opts)
+		if err == nil {
+			_, err = os.ReadFile(c.filename)
+			return err
+		}
+	default:
+		object, err = c.client.GetObject(ctx, name, key, opts)
+		if err == nil {
+			_, err = io.ReadAll(object)
+			return err
+		}
 	}
 	return err
 }
@@ -68,8 +91,23 @@ func newCli() (*Cli, error) {
 		Creds:  credentials.NewStaticV4(conf.MinioUsername, conf.MinioPassword, ""),
 		Secure: false,
 	})
+
+	// if read from file, filename is resource
+	var filename = fmt.Sprintf("%s%s", FixedFileDir, util.RandStr(8))
+	switch conf.ExchangeType {
+	case conf.ExchangeTypeFile:
+		if err := util.DDFile(filename, conf.DataSize/1024, util.SizeUnitKB); err != nil {
+			logrus.Errorf("dd file failed: %v", err)
+			return nil, err
+		}
+	default:
+
+	}
+
 	return &Cli{
-		client:   client,
-		dataSize: conf.DataSize,
+		client:     client,
+		dataSize:   conf.DataSize,
+		bufferType: conf.ExchangeType,
+		filename:   filename,
 	}, err
 }

@@ -66,7 +66,7 @@ func Start() error {
 			var newKey = key
 			gpool.newTask(func() {
 				startTime := time.Now()
-				_, err := client.PutObject(context.TODO(), conf.MinioBucketName, newKey, conf.DataSize, int64(conf.DataSetSize), minio.PutObjectOptions{})
+				_, err := client.PutObject(context.TODO(), conf.MinioBucketName, newKey, conf.DataSize, minio.PutObjectOptions{})
 				if err != nil {
 					metrics.FailCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeInsert).Inc()
 					logrus.Errorf("put object key:%s , error: %v", newKey, err)
@@ -109,7 +109,7 @@ func Start() error {
 				if randomF < conf.UpdateOpPercent {
 					key := nowKeys[rand.Intn(len(nowKeys))]
 					startTime := time.Now()
-					_, err := client.PutObject(context.TODO(), conf.MinioBucketName, key, conf.DataSize, int64(conf.DataSetSize), minio.PutObjectOptions{})
+					_, err := client.PutObject(context.TODO(), conf.MinioBucketName, key, conf.DataSize, minio.PutObjectOptions{})
 					if err != nil {
 						metrics.FailCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeUpdate).Inc()
 						logrus.Errorf("put object key: %s , error: %v", key, err)

@@ -24,6 +24,7 @@ import (
 
 var (
 	StorageType        = os.Getenv("STORAGE_TYPE")
+	ExchangeType       = os.Getenv("EXCHANGE_TYPE")
 	PresetRoutineNum   = util.GetEnvInt("PRESET_ROUTINE_NUM", 100)
 	RoutineNum         = util.GetEnvInt("ROUTINE_NUM", 100)
 	RoutineRateLimit   = util.GetEnvInt("ROUTINE_RATE_LIMIT", 100)
@@ -42,6 +43,8 @@ const (
 	StorageTypeMysql     = "MYSQL"
 	StorageTypeRedis     = "REDIS"
 	StorageTypeZooKeeper = "ZOOKEEPER"
+	ExchangeTypeMemory   = "MEMORY"
+	ExchangeTypeFile     = "FILE"
 	OperationTypeInsert  = "INSERT"
 	OperationTypeDelete  = "DELETE"
 	OperationTypeUpdate  = "UPDATE"

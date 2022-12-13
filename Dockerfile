@@ -25,6 +25,8 @@ RUN go build -o pf-storage .
 
 FROM shoothzj/base:go
 
+RUN mkdir /opt/perf/testdata
+
 WORKDIR /opt/perf
 
 COPY --from=build /opt/compile/pf-storage /opt/perf/pf-storage
