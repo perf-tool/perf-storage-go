@@ -31,7 +31,7 @@ func RandBytes(n int64) []byte {
 	return b
 }
 
-func RandStr(n int) string {
+func RandStr(n int64) string {
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = letters[rand.Int63()%int64(len(letters))]

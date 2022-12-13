@@ -47,10 +47,10 @@ func Start() error {
 		cancelFunc()
 		return err
 	}
-	keyList := util.GetIdList(conf.EtcdDataSize - int(resp.Count))
+	keyList := util.GetIdList(conf.DataSetSize - int(resp.Count))
 	for _, key := range keyList {
 		start := time.Now()
-		_, err := client.Put(ctx, fmt.Sprintf("%s/%s", conf.EtcdPath, key), util.RandStr(conf.EtcdDataLength))
+		_, err := client.Put(ctx, fmt.Sprintf("%s/%s", conf.EtcdPath, key), util.RandStr(conf.DataSize))
 		if err != nil {
 			metrics.FailCount.WithLabelValues(conf.StorageTypeEtcd, conf.OperationTypeInsert).Inc()
 			logrus.Error("put fail. ", err)

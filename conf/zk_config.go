@@ -24,5 +24,4 @@ var (
 	ZkPort       = util.GetEnvInt("ZK_PORT", 2181)
 	ZkPath       = util.GetEnvStr("ZK_PATH", "/perf")
 	ZkPermission = util.GetEnvInt("ZK_PERMISSION", 31)
-	ZkDataSize   = util.GetEnvInt("ZK_DATA_SIZE", 10240)
 )
