@@ -29,7 +29,7 @@ var (
 	RoutineRateLimit   = util.GetEnvInt("ROUTINE_RATE_LIMIT", 100)
 	UpdateRateInterval = util.GetEnvInt("UPDATE_RATE_INTERVAL_SECONDS", 0)
 	ReadRateInterval   = util.GetEnvInt("READ_RATE_INTERVAL_SECONDS", 0)
-	DataSize           = util.GetEnvInt("DATA_SIZE", 10240)
+	DataSize           = util.GetEnvInt64("DATA_SIZE", 10240)
 	DataSetSize        = util.GetEnvInt("DATA_SET_SIZE", 100_000)
 	ReadOpPercent      = util.GetEnvFloat64("READ_OP_PERCENT", 0.25)
 	UpdateOpPercent    = util.GetEnvFloat64("UPDATE_OP_PERCENT", 0.75)

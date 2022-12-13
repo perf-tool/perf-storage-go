@@ -76,7 +76,7 @@ func Start() error {
 		for _, val := range idList {
 			start := time.Now()
 			path := conf.ZkPath + "/" + val
-			resp, err := client.create(path, util.RandBytes(conf.ZkDataSize), conf.ZkPermission)
+			resp, err := client.create(path, util.RandBytes(conf.DataSize), conf.ZkPermission)
 			if err != nil {
 				metrics.SuccessCount.WithLabelValues(conf.StorageTypeZooKeeper, conf.OperationTypeInsert).Inc()
 				metrics.SuccessLatency.WithLabelValues(conf.StorageTypeZooKeeper, conf.OperationTypeInsert).Observe(float64(time.Since(start)))

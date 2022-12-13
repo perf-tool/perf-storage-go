@@ -26,7 +26,5 @@ var (
 	Username           = util.GetEnvStr("ETCD_USERNAME", "")
 	Password           = util.GetEnvStr("ETCD_PASSWORD", "")
 	DialTimeoutSeconds = util.GetEnvInt("ETCD_DIAL_TIMEOUT_SECONDS", 5)
-	EtcdDataSize       = util.GetEnvInt("ETCD_DATA_SIZE", 10240)
-	EtcdDataLength     = util.GetEnvInt("ETCD_DATA_LENGTH", 512)
 	EtcdPath           = util.GetEnvStr("ETCD_PATH", "/perf")
 )
