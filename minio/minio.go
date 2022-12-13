@@ -21,10 +21,8 @@ import (
 	"bytes"
 	"context"
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/ratelimit"
-	"io"
 	"math/rand"
 	"perf-storage-go/conf"
 	"perf-storage-go/metrics"
@@ -34,10 +32,7 @@ import (
 
 func Start() error {
 	logrus.Info("perf storage minio start")
-	client, err := minio.New(conf.MinioEndpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(conf.MinioUsername, conf.MinioPassword, ""),
-		Secure: false,
-	})
+	client, err := newCli()
 	if err != nil {
 		return err
 	}
@@ -92,10 +87,7 @@ func Start() error {
 	for i := 0; i < conf.RoutineNum; i++ {
 		go func() {
 			limiter := ratelimit.New(conf.RoutineRateLimit)
-			client, err := minio.New(conf.MinioEndpoint, &minio.Options{
-				Creds:  credentials.NewStaticV4(conf.MinioUsername, conf.MinioPassword, ""),
-				Secure: false,
-			})
+			client, err := newCli()
 			if err != nil {
 				logrus.Error("create minio client error", err)
 			}
@@ -105,19 +97,13 @@ func Start() error {
 				if randomF < conf.ReadOpPercent {
 					key := nowKeys[rand.Intn(len(nowKeys))]
 					startTime := time.Now()
-					object, err := client.GetObject(context.TODO(), conf.MinioBucketName, key, minio.GetObjectOptions{})
+					err := client.GetObject(context.TODO(), conf.MinioBucketName, key, minio.GetObjectOptions{})
 					if err != nil {
 						metrics.FailCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeREAD).Inc()
 						logrus.Error("get object error", err)
 					} else {
-						_, err = io.ReadAll(object)
-						if err != nil {
-							metrics.FailCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeREAD).Inc()
-							logrus.Errorf("read object key %s error %v", key, err)
-						} else {
-							metrics.SuccessCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeREAD).Inc()
-							metrics.SuccessLatency.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeREAD).Observe(float64(time.Since(startTime)))
-						}
+						metrics.SuccessCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeREAD).Inc()
+						metrics.SuccessLatency.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeREAD).Observe(float64(time.Since(startTime)))
 					}
 				}
 				if randomF < conf.UpdateOpPercent {

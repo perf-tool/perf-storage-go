@@ -23,7 +23,7 @@ import (
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-func RandBytes(n int) []byte {
+func RandBytes(n int64) []byte {
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = letters[rand.Int63()%int64(len(letters))]
