@@ -24,8 +24,6 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sirupsen/logrus"
-	"io"
-	"os"
 	"perf-storage-go/conf"
 	"perf-storage-go/util"
 )
@@ -71,15 +69,20 @@ func (c Cli) GetObject(ctx context.Context, name string, key string, opts minio.
 	var object *minio.Object
 	switch conf.ExchangeType {
 	case conf.ExchangeTypeFile:
-		err = c.client.FGetObject(ctx, name, key, c.filename, opts)
-		if err == nil {
-			_, err = os.ReadFile(c.filename)
+		err = c.client.FGetObject(ctx, name, key, fmt.Sprintf("%s_download", c.filename), opts)
+		if err != nil {
+			logrus.Errorf("get file object failed: %v", err)
 			return err
 		}
 	default:
 		object, err = c.client.GetObject(ctx, name, key, opts)
-		if err == nil {
-			_, err = io.ReadAll(object)
+		if err != nil {
+			logrus.Errorf("get memory object failed: %v", err)
+			return err
+		}
+		_, err := object.Stat()
+		if err != nil {
+			logrus.Errorf("read object metadata failed: %v", err)
 			return err
 		}
 	}
