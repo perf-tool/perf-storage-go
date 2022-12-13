@@ -24,5 +24,4 @@ var (
 	MinioUsername   = util.GetEnvStr("MINIO_USERNAME", "admin")
 	MinioPassword   = util.GetEnvStr("MINIO_PASSWORD", "password")
 	MinioBucketName = util.GetEnvStr("MINIO_BUCKET_NAME", "perf-bucket")
-	MinioDataSize   = util.GetEnvInt("MINIO_DATA_SIZE", 10240)
 )

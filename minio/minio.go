@@ -62,16 +62,16 @@ func Start() error {
 		}
 		nowKeys = append(nowKeys, object.Key)
 	}
-	needDataSize := conf.DataSetSize - len(nowKeys)
-	if needDataSize > 0 {
-		keys := util.GetIdList(needDataSize)
+	needDataSetSize := conf.DataSetSize - len(nowKeys)
+	if needDataSetSize > 0 {
+		keys := util.GetIdList(needDataSetSize)
 
 		var gpool = newGPool(conf.PresetRoutineNum)
 		for idx, key := range keys {
 			var newKey = key
 			gpool.newTask(func() {
 				startTime := time.Now()
-				_, err := client.PutObject(context.TODO(), conf.MinioBucketName, newKey, bytes.NewReader(util.RandBytes(conf.MinioDataSize)), int64(conf.DataSetSize), minio.PutObjectOptions{})
+				_, err := client.PutObject(context.TODO(), conf.MinioBucketName, newKey, bytes.NewReader(util.RandBytes(conf.DataSize)), int64(conf.DataSetSize), minio.PutObjectOptions{})
 				if err != nil {
 					metrics.FailCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeInsert).Inc()
 					logrus.Errorf("put object key %s error %v", newKey, err)
@@ -123,7 +123,7 @@ func Start() error {
 				if randomF < conf.UpdateOpPercent {
 					key := nowKeys[rand.Intn(len(nowKeys))]
 					startTime := time.Now()
-					_, err := client.PutObject(context.TODO(), conf.MinioBucketName, key, bytes.NewReader(util.RandBytes(conf.MinioDataSize)), int64(conf.DataSetSize), minio.PutObjectOptions{})
+					_, err := client.PutObject(context.TODO(), conf.MinioBucketName, key, bytes.NewReader(util.RandBytes(conf.DataSize)), int64(conf.DataSetSize), minio.PutObjectOptions{})
 					if err != nil {
 						metrics.FailCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeUpdate).Inc()
 						logrus.Errorf("put object key %s error %v", key, err)
