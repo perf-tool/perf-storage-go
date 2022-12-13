@@ -17,14 +17,16 @@
 # under the License.
 #
 
-FROM perftool/compile:go AS build
-COPY . /opt/perf/compile
-WORKDIR /opt/perf/compile
+FROM shoothzj/compile:go AS build
+COPY . /opt/compile
+WORKDIR /opt/compile
 RUN go build -o pf-storage .
 
 
-FROM perftool/base
+FROM shoothzj/base:go
 
-COPY --from=build /opt/perf/compile/pf-storage /opt/perf/pf-storage
+WORKDIR /opt/perf
+
+COPY --from=build /opt/compile/pf-storage /opt/perf/pf-storage
 
 CMD ["/usr/bin/dumb-init", "/opt/perf/pf-storage"]
