@@ -62,23 +62,26 @@ func Start() error {
 	if needDataSetSize > 0 {
 		keys := util.GetIdList(needDataSetSize)
 		var gpool = newGPool(conf.PresetRoutineNum)
-		for idx, key := range keys {
+		for _, key := range keys {
 			var newKey = key
 			gpool.newTask(func() {
 				startTime := time.Now()
 				_, err := client.PutObject(context.TODO(), conf.MinioBucketName, newKey, conf.DataSize, minio.PutObjectOptions{})
 				if err != nil {
 					metrics.FailCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeInsert).Inc()
-					logrus.Errorf("put object key:%s , error: %v", newKey, err)
+					logrus.Errorf("put object key: %s , error: %v", newKey, err)
 				} else {
 					metrics.SuccessCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeInsert).Inc()
 					metrics.SuccessLatency.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeInsert).Observe(float64(time.Since(startTime).Milliseconds()))
 				}
+				if conf.ReadRateInterval != 0 {
+					execTime := time.Since(startTime)
+					intervalTime := time.Second * time.Duration(conf.ReadRateInterval)
+					if execTime < intervalTime {
+						time.Sleep(intervalTime - execTime)
+					}
+				}
 			})
-			// sleep
-			if idx != 0 && idx%conf.PresetRoutineNum == 0 && conf.UpdateRateInterval != 0 {
-				time.Sleep(time.Second * time.Duration(conf.UpdateRateInterval))
-			}
 		}
 		gpool.wait()
 		nowKeys = append(nowKeys, keys...)
@@ -92,11 +95,11 @@ func Start() error {
 				logrus.Errorf("create minio client error: %v", err)
 			}
 			for {
+				startTime := time.Now()
 				limiter.Take()
 				randomF := rand.Float64()
 				if randomF < conf.ReadOpPercent {
 					key := nowKeys[rand.Intn(len(nowKeys))]
-					startTime := time.Now()
 					err := client.GetObject(context.TODO(), conf.MinioBucketName, key, minio.GetObjectOptions{})
 					if err != nil {
 						metrics.FailCount.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeREAD).Inc()
@@ -118,9 +121,12 @@ func Start() error {
 						metrics.SuccessLatency.WithLabelValues(conf.StorageTypeMinio, conf.OperationTypeUpdate).Observe(float64(time.Since(startTime)))
 					}
 				}
-
 				if conf.ReadRateInterval != 0 {
-					time.Sleep(time.Second * time.Duration(conf.ReadRateInterval))
+					execTime := time.Since(startTime)
+					intervalTime := time.Second * time.Duration(conf.ReadRateInterval)
+					if execTime < intervalTime {
+						time.Sleep(intervalTime - execTime)
+					}
 				}
 			}
 		}()
