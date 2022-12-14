@@ -49,7 +49,11 @@ func (c Cli) ListObjects(ctx context.Context, name string, opts minio.ListObject
 	return c.client.ListObjects(ctx, name, opts)
 }
 
-func (c Cli) PutObject(ctx context.Context, name string, key string, dataSize int64, opts minio.PutObjectOptions) (minio.UploadInfo, error) {
+func (c Cli) PutObject(ctx context.Context, name string, key string, dataSize int64) (minio.UploadInfo, error) {
+	opts := minio.PutObjectOptions{}
+	if conf.MinioStorageClass != "" {
+		opts.StorageClass = conf.MinioStorageClass
+	}
 	switch c.bufferType {
 	case conf.ExchangeTypeFile:
 		return c.client.FPutObject(ctx, name, key, c.filename, opts)

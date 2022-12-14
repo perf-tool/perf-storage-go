@@ -20,8 +20,9 @@ package conf
 import "perf-storage-go/util"
 
 var (
-	MinioEndpoint   = util.GetEnvStr("MINIO_ENDPOINT", "localhost:9000")
-	MinioUsername   = util.GetEnvStr("MINIO_USERNAME", "admin")
-	MinioPassword   = util.GetEnvStr("MINIO_PASSWORD", "password")
-	MinioBucketName = util.GetEnvStr("MINIO_BUCKET_NAME", "perf-bucket")
+	MinioEndpoint     = util.GetEnvStr("MINIO_ENDPOINT", "localhost:9000")
+	MinioUsername     = util.GetEnvStr("MINIO_USERNAME", "admin")
+	MinioPassword     = util.GetEnvStr("MINIO_PASSWORD", "password")
+	MinioBucketName   = util.GetEnvStr("MINIO_BUCKET_NAME", "perf-bucket")
+	MinioStorageClass = util.GetEnvStr("MINIO_STORAGE_CLASS", "")
 )
