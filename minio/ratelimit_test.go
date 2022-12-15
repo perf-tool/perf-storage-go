@@ -18,47 +18,18 @@
 package minio
 
 import (
-	"github.com/sirupsen/logrus"
-	"sync"
+	"fmt"
+	"go.uber.org/ratelimit"
+	"testing"
+	"time"
 )
 
-// gPool simple goroutine pool
-type gPool struct {
-	work     chan func()
-	capacity chan struct{}
-	wg       sync.WaitGroup
-}
+func TestRateLimiter(t *testing.T) {
+	var startTime = time.Now()
+	var limiter = ratelimit.New(1)
 
-func newGPool(size int) *gPool {
-	return &gPool{
-		work:     make(chan func()),
-		capacity: make(chan struct{}, size),
+	for i := 0; i < 10; i++ {
+		limiter.Take()
+		fmt.Printf("%d: %v", i, time.Since(startTime))
 	}
-}
-
-func (p *gPool) newTask(task func()) {
-	p.wg.Add(1)
-	select {
-	case p.work <- task:
-	case p.capacity <- struct{}{}:
-		go p.worker(task)
-	}
-}
-
-func (p *gPool) worker(task func()) {
-	defer func() {
-		if err := recover(); err != nil {
-			logrus.Errorf("exec task failed: %v", err)
-		}
-		<-p.capacity
-	}()
-	for {
-		task()
-		p.wg.Done()
-		task = <-p.work
-	}
-}
-
-func (p *gPool) wait() {
-	p.wg.Wait()
 }

@@ -108,7 +108,7 @@ func newCli() (*Cli, error) {
 			return nil, err
 		}
 	default:
-
+		FixedBytesCache = util.RandBytes(conf.DataSize)
 	}
 
 	return &Cli{
