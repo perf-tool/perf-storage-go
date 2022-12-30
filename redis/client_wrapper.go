@@ -18,10 +18,35 @@
 package redis
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/go-redis/redis/v9"
+	"perf-storage-go/conf"
 )
 
-func Start() error {
-	logrus.Info("perf storage redis start")
-	return nil
+type Cli struct {
+	client        *redis.Client
+	clusterClient *redis.ClusterClient
+}
+
+func newCli() *Cli {
+	cli := &Cli{}
+	if conf.RedisCluster {
+		cli.clusterClient = newClusterClient()
+	} else {
+		cli.client = newClient()
+	}
+	return cli
+}
+
+func newClient() *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr:     conf.RedisAddr,
+		Password: conf.RedisPassword,
+	})
+}
+
+func newClusterClient() *redis.ClusterClient {
+	return redis.NewClusterClient(&redis.ClusterOptions{
+		Addrs:    []string{conf.RedisAddr},
+		Password: conf.RedisPassword,
+	})
 }

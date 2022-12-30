@@ -15,13 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package redis
+package conf
 
-import (
-	"github.com/sirupsen/logrus"
+import "perf-storage-go/util"
+
+var (
+	RedisCluster  = util.GetEnvBool("REDIS_CLUSTER", false)
+	RedisAddr     = util.GetEnvStr("REDIS_ADDR", "localhost:9000")
+	RedisPassword = util.GetEnvStr("REDIS_PASSWORD", "")
 )
-
-func Start() error {
-	logrus.Info("perf storage redis start")
-	return nil
-}
