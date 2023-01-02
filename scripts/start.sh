@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -15,21 +16,11 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-#
 
-FROM shoothzj/compile:go AS build
-COPY . /opt/compile
-WORKDIR /opt/compile
-RUN go build -o pf-storage .
+mkdir -p /opt/perf/logs
 
+if [ $DLV_ENABLE == "true" ]; then
+  nohup dlv --listen=:2345 --headless=true --api-version=2 exec /opt/perf/pf-storage >>/opt/perf/logs/pf-storage.stdout.log 2>>/opt/perf/logs/pf-storage.stderr.log &
+fi
 
-FROM shoothzj/base:go
-
-RUN mkdir -p /opt/perf/testdata
-
-WORKDIR /opt/perf
-
-COPY --from=build /opt/compile/pf-storage /opt/perf/pf-storage
-COPY scripts/start.sh /opt/perf/start.sh
-
-CMD ["/opt/perf/start.sh"]
+/usr/bin/dumb-init /opt/perf/pf-storage

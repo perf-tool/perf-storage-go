@@ -19,7 +19,12 @@ package util
 
 import (
 	"math/rand"
+	"time"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -37,4 +42,8 @@ func RandStr(n int64) string {
 		b[i] = letters[rand.Int63()%int64(len(letters))]
 	}
 	return string(b)
+}
+
+func RandNumber(min, max int64) int64 {
+	return rand.Int63n(max-min) + min
 }
