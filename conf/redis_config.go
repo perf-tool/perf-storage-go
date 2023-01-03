@@ -20,7 +20,16 @@ package conf
 import "perf-storage-go/util"
 
 var (
-	RedisCluster  = util.GetEnvBool("REDIS_CLUSTER", false)
-	RedisAddr     = util.GetEnvStr("REDIS_ADDR", "localhost:9000")
-	RedisPassword = util.GetEnvStr("REDIS_PASSWORD", "")
+	RedisDatabase     = util.GetEnvInt("REDIS_DATABASE", 0)
+	RedisAddr         = util.GetEnvStr("REDIS_ADDR", "localhost:9000")
+	RedisUser         = util.GetEnvStr("REDIS_USER", "")
+	RedisPassword     = util.GetEnvStr("REDIS_PASSWORD", "")
+	RedisCluster      = util.GetEnvBool("REDIS_CLUSTER", false)
+	RedisDialTimeout  = util.GetEnvInt("REDIS_DIAL_SECONDS", 0)
+	RedisReadTimeout  = util.GetEnvInt("REDIS_READ_TIMEOUT", 0)
+	RedisWriteTimeout = util.GetEnvInt("REDIS_WRITE_TIMEOUT", 0)
+	RedisPoolSize     = util.GetEnvInt("REDIS_POOL_SIZE", 10)
+	RedisPoolTimeout  = util.GetEnvInt("REDIS_POOL_TIMEOUT", 0)
+	RedisMinIdleConn  = util.GetEnvInt("REDIS_MIN_IDLE_CONN", 5)
+	RedisMaxIdleConn  = util.GetEnvInt("REDIS_MAX_IDLE_CONN", 10)
 )
