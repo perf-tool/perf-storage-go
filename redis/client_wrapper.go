@@ -74,7 +74,7 @@ func (c *Cli) Get(ctx context.Context, key string) (string, error) {
 }
 
 func (c *Cli) Set(ctx context.Context, key, val string) error {
-	return c.client.Set(ctx, key, val, -1).Err()
+	return c.client.Set(ctx, key, val, time.Second*time.Duration(conf.RedisExpirationSeconds)).Err()
 }
 
 func (c *Cli) Del(ctx context.Context, keys ...string) error {
