@@ -30,6 +30,7 @@ RUN mkdir -p /opt/perf/testdata
 WORKDIR /opt/perf
 
 COPY --from=build /opt/compile/pf-storage /opt/perf/pf-storage
-COPY scripts/start.sh /opt/perf/start.sh
 
-CMD ["/opt/perf/start.sh"]
+COPY docker-build /opt/perf
+
+CMD ["/usr/bin/dumb-init", "bash", "-vx","/opt/perf/scripts/start.sh"]
