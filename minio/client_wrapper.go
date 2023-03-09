@@ -50,7 +50,7 @@ func (c Cli) ListObjects(ctx context.Context, name string, opts minio.ListObject
 }
 
 func (c Cli) PutObject(ctx context.Context, name string, key string, dataSize int64) (minio.UploadInfo, error) {
-	opts := minio.PutObjectOptions{}
+	opts := minio.PutObjectOptions{DisableMultipart: conf.MinioDisableMultipart}
 	if conf.MinioStorageClass != "" {
 		opts.StorageClass = conf.MinioStorageClass
 	}
