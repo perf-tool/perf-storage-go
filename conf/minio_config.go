@@ -25,4 +25,5 @@ var (
 	MinioPassword     = util.GetEnvStr("MINIO_PASSWORD", "password")
 	MinioBucketName   = util.GetEnvStr("MINIO_BUCKET_NAME", "perf-bucket")
 	MinioStorageClass = util.GetEnvStr("MINIO_STORAGE_CLASS", "")
+	MinioDisableMultipart = util.GetEnvBool("MINIO_DISABLE_MULTIPART", false)
 )
